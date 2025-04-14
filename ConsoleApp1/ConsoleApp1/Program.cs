@@ -2,79 +2,171 @@
 
 class Program
 {
+    public class ListNode
+    {
+        public int val;
+        public ListNode next;
+        public ListNode(int x) { val = x; }
+    }
+
     /// <summary>
-    ///  LeetCode 1. Two Sum
-    ///  https://leetcode.com/problems/two-sum/
-    ///  1. 两数之和
-    /// https://leetcode.cn/problems/two-sum/description/
+    /// 2. Add Two Numbers
+    /// https://leetcode.com/problems/add-two-numbers/
+    /// 2. 两数相加
+    /// https://leetcode.cn/problems/add-two-numbers/description/
     /// 
-    ///  Given nums = [2, 7, 11, 15], target = 9,
-    ///  Because nums[0] + nums[1] = 2 + 7 = 9,
-    ///  return [0, 1].
-    ///  回傳 index 位置
+    /// 題目會給兩個 linklist 將他們相加
+    /// 每個 node 指儲存一位數字 (0 ~ 9)
+    /// 逆向儲存(由右至左方向)
+    /// 如果 sum 超過 10 往右 node 進位
+    /// 
+    /// 兩個方法大同小異
+    /// 方法一比較好理解
     /// </summary>
     /// <param name="args"></param>
     static void Main(string[] args)
     {
-        int[] nums = { 2, 7, 11, 15 };
-        int target = 9;
-        var res = TwoSum(nums, target);
-        Console.WriteLine($"ref: [{res[0]},{res[1]}]");
+        ListNode l1 = new ListNode(2);
+        l1.next = new ListNode(4);
+        l1.next.next = new ListNode(3);
+        //l1.next.next.next = new ListNode(9);
+        //l1.next.next.next.next = new ListNode(9);
+        //l1.next.next.next.next.next = new ListNode(9);
+        //l1.next.next.next.next.next.next = new ListNode(9);
+
+        ListNode l2 = new ListNode(5);
+        l2.next = new ListNode(6);
+        l2.next.next = new ListNode(4);
+        //l2.next.next.next = new ListNode(9);
+
+        var res = addTwoNumbers(l1, l2);
+        while (res != null)
+        {
+            Console.WriteLine("function1:" + res.val);
+            //Console.WriteLine(res.val);
+            res = res.next;
+        }
+        Console.WriteLine("-----------------");
+        var res3 = addTwoNumbers2(l1, l2);
+        while (res3 != null)
+        {
+            Console.WriteLine("function2:" + res3.val);
+            //Console.WriteLine(res.val);
+            res3 = res3.next;
+        }
+        Console.WriteLine("-----------------end");
+
+        //Console.ReadKey();
     }
 
 
     /// <summary>
-    /// 解題思路：
-    /// 1. 使用 Dictionary 作為 Hash Table，儲存已遍歷過的數字及其索引
-    /// 2. 對於每個數字 nums[i]，計算目標值與當前數字的差值 (target - nums[i])
-    /// 3. 如果差值存在於 Dictionary 中，表示找到配對，返回兩個數字的索引
-    /// 4. 如果沒找到，將當前數字和索引加入 Dictionary
+    /// ref:
+    /// https://www.itread01.com/content/1545328944.html
     /// 
-    /// 時間複雜度：O(n) - 只需遍歷一次數組
-    /// 空間複雜度：O(n) - 需要額外的 Dictionary 儲存已遍歷的數字
+    /// 最後輸出是 head.next
+    /// 因為 head 宣告時候是 0
+    /// 從下一個 node 才是 相加之後的新 node
     /// 
-    /// 優化重點：
-    /// - 使用 Dictionary 將查找時間從 O(n) 降至 O(1)
-    /// - 一邊遍歷一邊存儲，避免重複遍歷
-    /// - 使用索引器替代 Add 方法，程式碼更簡潔
+    /// 先判斷是否進位
+    /// 再來把 node value 加總
+    /// 接續就把 node 指向下個 node
     /// 
-    /// https://www.itread01.com/content/1543410439.html
-    /// https://ithelp.ithome.com.tw/articles/10217042
     /// </summary>
-    /// <param name="nums">輸入的整數陣列</param>
-    /// <param name="target">目標和</param>
-    /// <returns>符合目標和的兩個數字的索引陣列</returns>
-    public static int[] TwoSum(int[] nums, int target)
+    /// <param name="l1"></param>
+    /// <param name="l2"></param>
+    /// <returns></returns>
+    public static ListNode addTwoNumbers(ListNode l1, ListNode l2)
     {
-        // 建立 Dictionary 作為 Hash Table，key 為數字值，value 為索引位置
-        Dictionary<int, int> dic = new Dictionary<int, int>();
-        
-        // 遍歷整個數組
-        for(int i = 0; i < nums.Length; i++)
+        // 暫存
+        ListNode l3 = new ListNode(0);
+        // 輸出答案
+        ListNode head = l3;
+        int sum = 0;
+        while (l1 != null || l2 != null)
         {
-            // 計算需要尋找的配對數字 (目標值減去當前數字)
-            int left = target - nums[i];
-            
-            // 檢查是否已經存在配對的數字
-            if(dic.ContainsKey(left))
+            // 判斷是否進位
+            sum = sum > 9 ? 1 : 0;
+
+            if (l1 != null)
             {
-                // 找到配對！返回兩個數字的索引
-                // dic[left] 是之前存入的索引，i 是當前索引
-                return new int[] { dic[left], i };
+                sum += l1.val;
+                l1 = l1.next;
             }
 
-            // 若當前數字不在 Dictionary 中，將其加入
-            // 這裡使用判斷是為了避免重複值覆蓋原有的索引
-            // 只存儲第一次出現的索引
-            if (!dic.ContainsKey(nums[i]))
+            if (l2 != null)
             {
-                // dic.Add(nums[i], i);
-                dic[nums[i]] = i; // 使用索引器語法，較 Add 方法更簡潔
+                sum += l2.val;
+                l2 = l2.next;
+            }
+
+            // 儲存在 l3 中
+            l3.next = new ListNode(sum % 10);
+            l3 = l3.next;
+        }
+
+        // 判斷最後一項是否和大於 9，大於則需要再添加一個 1.
+        if (sum > 9)
+        {
+            l3.next = new ListNode(1);
+        }
+
+        return head.next;
+    }
+
+
+    /// <summary>
+    /// ref:
+    /// https://blog.csdn.net/weixin_41969800/article/details/121118863
+    /// 
+    /// 最後輸出是 resultnode.next
+    /// 因為 resultnode 宣告時候是 0
+    /// 從下一個 node 才是 相加之後的新 node
+    /// 
+    /// 本方法是把 相加 先做
+    /// 再來判斷 是否進位
+    /// 之後再把 node 指向 下一個 node
+    /// </summary>
+    /// <param name="l1"></param>
+    /// <param name="l2"></param>
+    /// <returns></returns>
+    public static ListNode addTwoNumbers2(ListNode l1, ListNode l2)
+    {
+        ListNode resultnode = new ListNode(0);
+        ListNode curr = resultnode;
+
+        int carry = 0;
+        while (l1 != null || l2 != null)
+        {
+            int d1 = l1 == null ? 0 : l1.val;
+            int d2 = l2 == null ? 0 : l2.val;
+
+            int sum = d1 + d2 + carry;
+            // 判斷是否進位;
+            // carry = 1, 下一輪就要加上去
+            carry = sum > 9 ? 1 : 0;
+
+            curr.next = new ListNode(sum % 10);
+            curr = curr.next;
+
+            if (l1 != null)
+            {
+                l1 = l1.next;
+            }
+
+            if (l2 != null)
+            {
+                l2 = l2.next;
             }
         }
 
-        // 若找不到符合的配對，返回空陣列
-        // return null;
-        return Array.Empty<int>(); // 使用 Empty<int>() 替代 null，更安全
+        // 判斷最後是否還是要進位
+        if (carry == 1)
+        {
+            curr.next = new ListNode(1);
+        }
+
+        return resultnode.next;
+
     }
 }
